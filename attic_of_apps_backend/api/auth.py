@@ -1,6 +1,5 @@
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.status import (
@@ -11,6 +10,7 @@ from rest_framework.status import (
 )
 from rest_framework.response import Response
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 @csrf_exempt
 @api_view(["POST"])
@@ -43,7 +43,13 @@ def create_auth(request):
     User.objects._create_user(_username, _email, _password)
     return Response({'message', 'Created user: %s' % _username}, status=HTTP_201_CREATED)
 
-    
+@csrf_exempt
+@api_view(["POST"])
+def get_user(request):
+    _token = request.data.get("username")
+    user = Token.objects.get(key=_token)
+    print(user)
+    return Response({'message': 'Got user'}, status=HTTP_200_OK)    
 
 @csrf_exempt
 @api_view(["POST"])
