@@ -11,6 +11,8 @@ from rest_framework.status import (
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from django.core import serializers
+import json
 
 @csrf_exempt
 @api_view(["POST"])
@@ -46,10 +48,7 @@ def create_auth(request):
 @csrf_exempt
 @api_view(["POST"])
 def get_user(request):
-    _token = request.data.get("username")
-    user = Token.objects.get(key=_token)
-    print(user)
-    return Response({'message': 'Got user'}, status=HTTP_200_OK)    
+    return Response({ 'user':  json.loads(serializers.serialize('json', [request.user]))[0]['fields']}, status=HTTP_200_OK)    
 
 @csrf_exempt
 @api_view(["POST"])
