@@ -15,8 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from attic_of_apps_backend.api.auth import *
 
 urlpatterns = [
-    path('api/', include('attic_of_apps_backend.api.urls')),
+    path('api/login', login),
+    path('api/logout', logout),
+    path('api/create_auth', create_auth),
     path('admin/', admin.site.urls)
 ]
