@@ -22,5 +22,6 @@ urlpatterns = [
     path('auth/logout', logout),
     path('auth/create_auth', create_auth),
     path('auth/get_user', get_user),
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
+    path('test', test_route)
 ]

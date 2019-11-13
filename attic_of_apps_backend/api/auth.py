@@ -55,3 +55,9 @@ def get_user(request):
 def logout(request):
         request.user.auth_token.delete()
         return Response({'message': 'You have been successfully logged out'}, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(["GET"])
+def test_route(request):
+    return Response({ 'test':  "test data"}, status=HTTP_200_OK) 
