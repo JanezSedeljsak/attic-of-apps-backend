@@ -18,9 +18,9 @@ from django.urls import path, include
 from attic_of_apps_backend.api.auth import *
 
 urlpatterns = [
-    path('api/login', login),
-    path('api/logout', logout),
-    path('api/create_auth', create_auth),
-    path('api/get_user', get_user),
+    path('auth/login', login),
+    path('auth/logout', logout),
+    path('auth/create_auth', create_auth),
+    path('auth/get_user', get_user),
     path('admin/', admin.site.urls)
 ]
