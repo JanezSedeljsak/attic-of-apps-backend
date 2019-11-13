@@ -1,0 +1,1 @@
+web: gunicorn attic_of_apps_backend.wsgi --pythonpath=attic_of_apps_backend --log-file -
