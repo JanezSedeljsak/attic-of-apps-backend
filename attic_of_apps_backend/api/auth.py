@@ -59,5 +59,6 @@ def logout(request):
 
 @csrf_exempt
 @api_view(["GET"])
+@permission_classes((AllowAny,))
 def test_route(request):
     return Response({ 'test':  "test data"}, status=HTTP_200_OK) 
