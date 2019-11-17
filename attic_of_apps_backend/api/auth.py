@@ -43,7 +43,7 @@ def create_auth(request):
         return Response({'error': 'User already exists'}, status=HTTP_404_NOT_FOUND)
 
     User.objects._create_user(_username, _email, _password)
-    return Response({'message', 'Created user: %s' % _username}, status=HTTP_201_CREATED)
+    return Response({'message': 'Created user: %s' % _username}, status=HTTP_201_CREATED)
 
 @csrf_exempt
 @api_view(["POST"])
