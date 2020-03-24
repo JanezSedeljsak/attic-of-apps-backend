@@ -100,8 +100,16 @@ WSGI_APPLICATION = 'attic_of_apps_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {}
-DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+
+if os.environ.get('DJANGO_DEVELOPMENT') is not None:    
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
 
 # Password validation
