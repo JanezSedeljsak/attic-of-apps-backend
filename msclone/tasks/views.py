@@ -4,9 +4,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 
 from django.contrib.auth.models import User
-from msclone.tasks.models import Task, SubTask
+from msclone.tasks.models import Task, SubTask, TaskCollaborators
 from rest_framework.permissions import AllowAny
-from msclone.tasks.serializers import TaskSerializer, TasksViewSerializer, SubTaskSerializer
+from msclone.tasks.serializers import TaskSerializer, TasksViewSerializer, SubTaskSerializer, TaskCollaboratorSerializer
 from django.core import serializers
 from django.db.models import Q
 from rest_framework.status import (
@@ -37,6 +37,13 @@ def get_task(request, task_id):
             subtask_serializer = SubTaskSerializer(subtasks, many=True)
 
             result['subtasks'] = subtask_serializer.data
+
+        if TaskCollaborators.objects.filter(task_id=task_id).exists():
+            collaborators =  TaskCollaborators.objects.filter(task_id=task_id)
+            collaborators_serializer = TaskCollaboratorSerializer(collaborators, many=True)
+
+            result['collaborators'] = collaborators_serializer.data
+
 
     elif request.method == 'PUT':
         task_serializer = TaskSerializer(task, data=request.data)

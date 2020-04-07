@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from msclone.tasks.models import Task, SubTask, TaskStatus
+from msclone.tasks.models import Task, SubTask, TaskStatus, TaskCollaborators
 
 
 class TasksViewSerializer(serializers.ModelSerializer):
@@ -8,7 +8,7 @@ class TasksViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['title', 'description', 'due_date', 'author']
+        fields = ['id', 'title', 'description', 'due_date', 'author']
 
 
     def get_user(self, task):
@@ -26,7 +26,7 @@ class TaskSerializer(TasksViewSerializer):
 
     class Meta:
         model = Task
-        fields = ['title', 'description', 'due_date', 'time_complexity', 'author', 'time_complexity_unit']
+        fields = ['id', 'title', 'description', 'due_date', 'time_complexity', 'author', 'time_complexity_unit']
 
     def get_complexity_unit(self, task):
 
@@ -47,18 +47,19 @@ class SubTaskSerializer(serializers.ModelSerializer):
 
 
     def get_status(self, stask):
-        
+
         if hasattr(stask, "status"):
             return stask.status.title
  
         return None
 
     def get_user(self, stask):
-        if stask.done_by:
-            if stask.done_by.first_name and stask.done_by.last_name:
-                return f'{stask.done_by.first_name} {stask.done_by.last_name}'        
-            
-            return stask.done_by.username
+        if hasattr(stask, "done_by"):
+            if stask.done_by:
+                if stask.done_by.first_name and stask.done_by.last_name:
+                    return f'{stask.done_by.first_name} {stask.done_by.last_name}'        
+                
+                return stask.done_by.username
         else:
             return None
 
@@ -68,3 +69,20 @@ class SubTaskDetailSerializer(SubTaskSerializer):
     class Meta:
         model = SubTask
         fields = ['title', 'done_by', 'status', 'worker']
+
+
+class TaskCollaboratorSerializer(serializers.ModelSerializer):
+
+    user = serializers.SerializerMethodField('get_user')
+    
+    class Meta:
+        model = TaskCollaborators
+        fields = ['timestamp', 'user']
+
+
+    def get_user(self, collaborator):
+        if hasattr(collaborator, "user"):  
+            if collaborator.user.first_name and collaborator.user.last_name:
+                return f'{collaborator.user.first_name} {collaborator.user.last_name}'  
+        else:
+            return None
