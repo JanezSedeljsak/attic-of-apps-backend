@@ -17,7 +17,7 @@ from rest_framework.status import (
 )
 
 @csrf_exempt
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((AllowAny,))
 def get_task(request, task_id):
 
@@ -25,20 +25,51 @@ def get_task(request, task_id):
 
     if not Task.objects.filter(id=task_id).exists():
         return Response({'error': 'The task you are searching for does not exist'}, status=HTTP_404_NOT_FOUND) 
-        
+
     task = Task.objects.get(id=task_id)
-    task_serializer = TaskSerializer(task)
 
-    result['task'] = task_serializer.data
+    if request.method == 'GET':   
+        task_serializer = TaskSerializer(task)
 
-    if SubTask.objects.filter(task_id=task_id).exists(): 
-        subtasks = SubTask.objects.filter(task_id=task_id)
-        subtask_serializer = SubTaskSerializer(subtasks, many=True)
+        result['task'] = task_serializer.data
 
-        result['subtasks'] = subtask_serializer.data
-    
+        if SubTask.objects.filter(task_id=task_id).exists(): 
+            subtasks = SubTask.objects.filter(task_id=task_id)
+            subtask_serializer = SubTaskSerializer(subtasks, many=True)
+
+            result['subtasks'] = subtask_serializer.data
+
+    elif request.method == 'PUT':
+        task_serializer = TaskSerializer(task, data=request.data)
+        if task_serializer.is_valid():
+            task_serializer.save()
+            result['success'] = True
+        else:
+            return Response({'error': task_serializer.errors}, status=HTTP_400_BAD_REQUEST) 
+
+    elif request.method == 'DELETE':
+        operation = task.delete()
+        if operation:
+            result['success'] = True
+        else:
+            result['success'] = False
+
 
     return Response(result, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def create_task(request):
+    user = User.objects.get(pk=2)
+    task_skeleton = Task(user=user)
+    task_serializer = TaskSerializer(task_skeleton, data=request.data)
+    if task_serializer.is_valid():
+        task_serializer.save()
+        return Response(task_serializer.data, status=HTTP_201_CREATED)
+    return Response(task_serializer.errors, status=HTTP_400_BAD_REQUEST)
+
 
 @csrf_exempt
 @api_view(['GET'])
@@ -64,6 +95,9 @@ def get_sub_task(request, task_id, subtask_id):
     
 
     return Response(subtask_serializer.data, status=HTTP_200_OK)
+
+
+
         
 
     

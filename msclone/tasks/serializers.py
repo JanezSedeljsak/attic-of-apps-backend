@@ -20,9 +20,17 @@ class TasksViewSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(TasksViewSerializer):
 
+    time_complexity_unit = serializers.SerializerMethodField('get_complexity_unit')
+
     class Meta:
         model = Task
-        fields = ['title', 'description', 'due_date', 'time_complexity', 'time_complexity_unit', 'author']
+        fields = ['title', 'description', 'due_date', 'time_complexity', 'author', 'time_complexity_unit']
+
+    def get_complexity_unit(self, task):
+        if task.time_complexity_unit:
+            return task.time_complexity_unit.definition
+        else:
+            return None
 
 
 class SubTaskSerializer(serializers.ModelSerializer):

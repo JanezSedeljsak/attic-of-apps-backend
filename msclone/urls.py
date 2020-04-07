@@ -12,6 +12,7 @@ urlpatterns = [
     path('auth/get_user', get_user),
     path('heartbeat', heartbeat),
     path('task/<int:task_id>', get_task),
+    path('task/create', create_task),
     path('task/<int:task_id>/<int:subtask_id>', get_sub_task),
     path('tasks', get_all_tasks)
 ]
