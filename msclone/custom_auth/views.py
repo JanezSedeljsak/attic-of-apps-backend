@@ -43,7 +43,7 @@ def create_auth(request):
         return Response({'error': 'User already exists'}, status=HTTP_404_NOT_FOUND)
 
     User.objects._create_user(_username, _email, _password)
-    return Response({'message': 'Created user: %s' % _username}, status=HTTP_201_CREATED)
+    return Response({'message': f'Created user: {_username}'}, status=HTTP_201_CREATED)
 
 @csrf_exempt
 @api_view(["POST"])
@@ -60,5 +60,5 @@ def logout(request):
 @csrf_exempt
 @api_view(["GET"])
 @permission_classes((AllowAny,))
-def test_route(request):
-    return Response({ 'test':  "test data"}, status=HTTP_200_OK) 
+def heartbeat(request):
+    return Response({ 'running':  True }, status=HTTP_200_OK) 
