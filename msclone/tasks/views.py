@@ -18,7 +18,6 @@ from rest_framework.status import (
 
 @csrf_exempt
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes((AllowAny,))
 def get_task(request, task_id):
 
     result = {}
@@ -60,10 +59,8 @@ def get_task(request, task_id):
 
 @csrf_exempt
 @api_view(['POST'])
-@permission_classes((AllowAny,))
 def create_task(request):
-    user = User.objects.get(pk=2)
-    task_skeleton = Task(user=user)
+    task_skeleton = Task(user=request.user)
     task_serializer = TaskSerializer(task_skeleton, data=request.data)
     if task_serializer.is_valid():
         task_serializer.save()
@@ -73,7 +70,6 @@ def create_task(request):
 
 @csrf_exempt
 @api_view(['GET'])
-@permission_classes((AllowAny,))
 def get_all_tasks(request):
 
     tasks = Task.objects.all()
@@ -84,7 +80,6 @@ def get_all_tasks(request):
 
 @csrf_exempt
 @api_view(['GET'])
-@permission_classes((AllowAny,))
 def get_sub_task(request, task_id, subtask_id):
 
     if not SubTask.objects.filter(Q(id=subtask_id) & Q(task_id=task_id)).exists():

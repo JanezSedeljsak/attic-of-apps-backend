@@ -12,10 +12,12 @@ class TasksViewSerializer(serializers.ModelSerializer):
 
 
     def get_user(self, task):
-        if task.user.first_name and task.user.last_name:
-            return f'{task.user.first_name} {task.user.last_name}'        
+
+        if hasattr(task, "user"):
+            if task.user.first_name and task.user.last_name:
+                return f'{task.user.first_name} {task.user.last_name}'        
             
-        return task.user.username
+        return None
 
 
 class TaskSerializer(TasksViewSerializer):
@@ -27,10 +29,11 @@ class TaskSerializer(TasksViewSerializer):
         fields = ['title', 'description', 'due_date', 'time_complexity', 'author', 'time_complexity_unit']
 
     def get_complexity_unit(self, task):
-        if task.time_complexity_unit:
+
+        if hasattr(task, "time_complexity_unit"):
             return task.time_complexity_unit.definition
-        else:
-            return None
+
+        return None
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
@@ -44,7 +47,8 @@ class SubTaskSerializer(serializers.ModelSerializer):
 
 
     def get_status(self, stask):
-        if stask.status:
+        
+        if hasattr(stask, "status"):
             return stask.status.title
  
         return None
