@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ApiConfig(AppConfig):
+class AuthConfig(AppConfig):
     name = 'custom_auth'
