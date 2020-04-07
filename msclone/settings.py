@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # Local Apps (Your project's apps)
     'msclone.custom_auth',
+    'msclone.tasks'
 ]
 
 REST_FRAMEWORK = {
