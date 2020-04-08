@@ -3,6 +3,7 @@ from django.conf.urls import url, include
 from django.urls import path
 from msclone.custom_auth.views import *
 from msclone.tasks.views import *
+from msclone.pdfgenerator.views import Pdf
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,5 +15,10 @@ urlpatterns = [
     path('task/<int:task_id>', get_task),
     path('task/create', create_task),
     path('task/<int:task_id>/<int:subtask_id>', get_sub_task),
-    path('tasks', get_all_tasks)
+    path('tasks', get_all_tasks),
+
+
+
+    # generate pdf route
+    path('render/pdf/', Pdf.as_view())
 ]
