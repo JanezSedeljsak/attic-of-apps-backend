@@ -102,6 +102,24 @@ def get_all_units(request):
     return Response(serializer.data, status=HTTP_200_OK)
 
 
+@csrf_exempt
+@api_view(['GET'])
+def get_your_tasks_for_daterange(request, start_date, end_date):
+
+    # @ FORMAT EXAMPLE: '09/19/18-13:55:26'
+
+    datetime_start_date = datetime.strptime(start_date, '%m/%d/%y-%H:%M:%S')
+    datetime_end_date = datetime.strptime(end_date, '%m/%d/%y-%H:%M:%S')
+
+    tasks = Task.objects.filter(
+        Q(user=request.user) & 
+        Q(timestamp__lte=datetime_start_date, timestamp__gt=datetime_end_date)
+    )
+    task_serializer = TasksViewSerializer(tasks, many=True)
+
+    return Response(task_serializer.data, status=HTTP_200_OK)
+
+
 
         
 

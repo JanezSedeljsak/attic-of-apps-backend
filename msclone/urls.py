@@ -27,6 +27,7 @@ urlpatterns = [
     path('tasks', get_all_tasks),
     path('task-units', get_all_units),
     path('task-statuses', get_all_statuses),
+    path('your-tasks/range/<slug:start_date>/<slug:end_date>', get_your_tasks_for_daterange),
 
     # chat routes
     path('chat/send_message', send_message),
