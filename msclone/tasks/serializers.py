@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from msclone.tasks.models import Task, SubTask, TaskStatus, TaskCollaborators
+from msclone.tasks.models import *
 
 class TasksViewSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField('get_user')
@@ -130,3 +130,17 @@ class SubTaskDetailSerializer(SubTaskSerializer):
     class Meta:
         model = SubTask
         fields = ['title', 'done_by', 'status', 'worker']
+
+
+class TaskStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TaskStatus
+        fields = '__all__'
+
+
+class UnitsSearlizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TaskUnits
+        fields = '__all__'

@@ -4,9 +4,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 
 from django.contrib.auth.models import User
-from msclone.tasks.models import Task, SubTask, TaskCollaborators
+from msclone.tasks.models import *
 from rest_framework.permissions import AllowAny
-from msclone.tasks.serializers import TaskSerializer, TasksViewSerializer, SubTaskSerializer, TaskCollaboratorSerializer
+from msclone.tasks.serializers import *
 from django.core import serializers
 from django.db.models import Q
 from rest_framework.status import (
@@ -81,6 +81,25 @@ def get_sub_task(request, task_id, subtask_id):
     
 
     return Response(subtask_serializer.data, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['GET'])
+def get_all_statuses(request):
+
+    status = TaskStatus.objects.all()
+    serializer = TaskStatusSerializer(status, many=True)
+
+    return Response(serializer.data, status=HTTP_200_OK)
+
+@csrf_exempt
+@api_view(['GET'])
+def get_all_units(request):
+
+    units = TaskUnits.objects.all()
+    serializer = UnitsSearlizer(units, many=True)
+
+    return Response(serializer.data, status=HTTP_200_OK)
 
 
 

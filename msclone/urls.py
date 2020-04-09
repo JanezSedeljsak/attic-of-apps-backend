@@ -25,6 +25,8 @@ urlpatterns = [
     path('task/create', create_task),
     path('task/<int:task_id>/<int:subtask_id>', get_sub_task),
     path('tasks', get_all_tasks),
+    path('task-units', get_all_units),
+    path('task-statuses', get_all_statuses),
 
     # chat routes
     path('chat/send_message', send_message),
