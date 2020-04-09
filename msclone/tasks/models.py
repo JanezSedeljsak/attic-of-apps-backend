@@ -22,6 +22,14 @@ class Task(models.Model):
     time_complexity = models.IntegerField(blank=True, default=0)
     time_complexity_unit = models.ForeignKey(TaskUnits, blank=True, default=None, on_delete=models.CASCADE)
 
+    @property
+    def subtasks(self):
+        return self.subtask_set.all()
+
+    @property
+    def taskcollaboratorss(self):
+        return self.taskcollaborators_set.all()
+
     def __str__(self):
         return self.title
 

@@ -29,20 +29,7 @@ def get_task(request, task_id):
 
     if request.method == 'GET':   
         task_serializer = TaskSerializer(task)
-
-        result['task'] = task_serializer.data
-
-        if SubTask.objects.filter(task_id=task_id).exists(): 
-            subtasks = SubTask.objects.filter(task_id=task_id)
-            subtask_serializer = SubTaskSerializer(subtasks, many=True)
-
-            result['subtasks'] = subtask_serializer.data
-
-        if TaskCollaborators.objects.filter(task_id=task_id).exists():
-            collaborators =  TaskCollaborators.objects.filter(task_id=task_id)
-            collaborators_serializer = TaskCollaboratorSerializer(collaborators, many=True)
-
-            result['collaborators'] = collaborators_serializer.data
+        result = task_serializer.data
 
 
     elif request.method == 'PUT':

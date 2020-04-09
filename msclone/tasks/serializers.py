@@ -20,20 +20,7 @@ class TasksViewSerializer(serializers.ModelSerializer):
         return None
 
 
-class TaskSerializer(TasksViewSerializer):
 
-    time_complexity_unit = serializers.SerializerMethodField('get_complexity_unit')
-
-    class Meta:
-        model = Task
-        fields = ['id', 'title', 'description', 'due_date', 'time_complexity', 'author', 'time_complexity_unit']
-
-    def get_complexity_unit(self, task):
-
-        if hasattr(task, "time_complexity_unit"):
-            return task.time_complexity_unit.definition
-
-        return None
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
@@ -63,14 +50,6 @@ class SubTaskSerializer(serializers.ModelSerializer):
         else:
             return None
 
-
-class SubTaskDetailSerializer(SubTaskSerializer):
-
-    class Meta:
-        model = SubTask
-        fields = ['title', 'done_by', 'status', 'worker']
-
-
 class TaskCollaboratorSerializer(serializers.ModelSerializer):
 
     user = serializers.SerializerMethodField('get_user')
@@ -86,3 +65,28 @@ class TaskCollaboratorSerializer(serializers.ModelSerializer):
                 return f'{collaborator.user.first_name} {collaborator.user.last_name}'  
         else:
             return None
+
+class TaskSerializer(TasksViewSerializer):
+
+    subtasks = SubTaskSerializer(many=True)
+    collaborators = TaskCollaboratorSerializer(many=True, source='taskcollaboratorss')
+    time_complexity_unit = serializers.SerializerMethodField('get_complexity_unit')
+
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'due_date', 'time_complexity', 
+            'author', 'time_complexity_unit', 'subtasks', 'collaborators']
+
+    def get_complexity_unit(self, task):
+
+        if hasattr(task, "time_complexity_unit"):
+            return task.time_complexity_unit.definition
+
+        return None
+
+
+class SubTaskDetailSerializer(SubTaskSerializer):
+
+    class Meta:
+        model = SubTask
+        fields = ['title', 'done_by', 'status', 'worker']
