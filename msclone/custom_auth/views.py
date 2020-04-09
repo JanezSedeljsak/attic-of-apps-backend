@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.core import serializers
+from .serializers import UserSerializer
 import json
 
 @csrf_exempt
@@ -26,8 +27,11 @@ def login(request):
     user = authenticate(username=_username, password=_password)
     if not user:
         return Response({'error': 'Invalid Credentials'}, status=HTTP_404_NOT_FOUND)
+
+    user_serializer = UserSerializer(user)
+
     token, _ = Token.objects.get_or_create(user=user)
-    return Response({'token': token.key}, status=HTTP_200_OK)
+    return Response({'token': token.key, 'user': user_serializer.data }, status=HTTP_200_OK)
 
 @csrf_exempt
 @api_view(['POST'])
