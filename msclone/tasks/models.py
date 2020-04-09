@@ -64,7 +64,7 @@ class SubTask(models.Model):
     title = models.CharField(max_length=30, default="")
     description = models.TextField(default="")
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    status = models.ForeignKey(TaskStatus, on_delete=models.CASCADE, default=None, blank=True)
+    status = models.ForeignKey(TaskStatus, on_delete=models.CASCADE, null=True)
     done_date = models.DateTimeField(blank=True, null=True)
     done_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     timestamp = models.DateTimeField(default=datetime.now, blank=True)
