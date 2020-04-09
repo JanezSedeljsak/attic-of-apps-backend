@@ -55,10 +55,7 @@ def get_task(request, task_id):
 
     elif request.method == 'DELETE':
         operation = task.delete()
-        if operation:
-            result['success'] = True
-        else:
-            result['success'] = False
+        result['success'] = bool(operation)
 
 
     return Response(result, status=HTTP_200_OK)
