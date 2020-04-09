@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     # Local Apps (Your project's apps)
     'msclone.custom_auth',
     'msclone.tasks',
-    'msclone.chat'
+    'msclone.chat',
+
+    #cors
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -53,19 +56,20 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated', )
 }
 
-MIDDLEWARE_CLASSES = (
-    'whitenoise.middleware.WhiteNoiseMiddleware'
-)
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+MIDDLEWARE_CLASSES = (
+    'whitenoise.middleware.WhiteNoiseMiddleware'
+)
 
 ROOT_URLCONF = 'msclone.urls'
 
@@ -150,3 +154,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+CORS_ORIGIN_WHITELIST = 'http://localhost:2001',
