@@ -11,9 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email', 'id', 'first_name', 'last_name', 'password')
 
     def update(self, instance, validated_data):
-        for (key, value) in validated_data.items():
-            setattr(instance, key, value)
-
+        for attr, value in validated_data.items():
+            if attr == 'password':
+                instance.set_password(value)
+            else:
+                setattr(instance, attr, value)
         instance.save()
-
         return instance
