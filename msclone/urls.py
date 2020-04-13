@@ -35,7 +35,6 @@ urlpatterns = [
     # picker routes
     path('picker/user', collaborator_picker),
     path('picker/status', status_picker),
-    path('picker/unit', unit_picker),
     path('picker/permission', permission_picker),
 
     # generate pdf route

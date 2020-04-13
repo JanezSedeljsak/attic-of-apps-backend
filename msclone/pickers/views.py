@@ -27,16 +27,6 @@ def status_picker(request):
 
 @csrf_exempt
 @api_view(['GET'])
-def unit_picker(request):
-
-    data = TaskUnit.objects.all()
-    serializer = UnitPickerSerializer(data, many=True)
-
-    return Response(serializer.data, status=HTTP_200_OK)
-
-
-@csrf_exempt
-@api_view(['GET'])
 def permission_picker(request):
 
     data = TaskPermission.objects.all()

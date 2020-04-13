@@ -130,17 +130,3 @@ class SubTaskDetailSerializer(SubTaskSerializer):
     class Meta:
         model = SubTask
         fields = ['title', 'done_by', 'status', 'worker']
-
-
-class TaskStatusSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = TaskStatus
-        fields = '__all__'
-
-
-class UnitsSearlizer(serializers.ModelSerializer):
-
-    class Meta:
-        model = TaskUnit
-        fields = '__all__'

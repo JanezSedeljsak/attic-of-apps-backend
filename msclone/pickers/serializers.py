@@ -20,13 +20,6 @@ class UserPickerSerializer(PickerSerializerSkeleton):
     get_display_as = lambda self, obj: f'{obj.first_name} {obj.last_name}'
     get_list_display = lambda self, obj: f'<b>{obj.first_name} {obj.last_name}</b> {obj.email}'
 
-class UnitPickerSerializer(PickerSerializerSkeleton):
-    class Meta(GlobalMetaForPickers):
-        model = TaskUnit
-
-    get_display_as = lambda self, obj: f'{obj.definition}'
-    get_list_display = lambda self, obj: f'<b>{obj.definition}</b>'
-
 class StatusPickerSerializer(PickerSerializerSkeleton):
     class Meta(GlobalMetaForPickers):
         model = TaskStatus

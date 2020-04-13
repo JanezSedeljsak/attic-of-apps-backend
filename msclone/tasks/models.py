@@ -13,16 +13,6 @@ class TaskPermission(models.Model):
     class Meta:
         ordering = ('title',)
 
-class TaskUnit(models.Model):
-    definition = models.CharField(max_length=30)
-    longname =  models.TextField(null=True, default="", blank=True)
-
-    def __str__(self):
-        return self.definition
-
-    class Meta:
-        ordering = ('definition',)
-
 class Task(models.Model):
     title = models.CharField(max_length=30)
     description = models.TextField(default="", null=True, blank=True)
@@ -30,7 +20,6 @@ class Task(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(null=True, blank=True)
     time_complexity = models.IntegerField(default=0)
-    time_complexity_unit = models.ForeignKey(TaskUnit, on_delete=models.CASCADE, null=True, blank=True)
 
     @property
     def subtasks(self):
