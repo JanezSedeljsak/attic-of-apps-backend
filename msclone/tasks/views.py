@@ -85,25 +85,6 @@ def get_sub_task(request, task_id, subtask_id):
 
 @csrf_exempt
 @api_view(['GET'])
-def get_all_statuses(request):
-
-    status = TaskStatus.objects.all()
-    serializer = TaskStatusSerializer(status, many=True)
-
-    return Response(serializer.data, status=HTTP_200_OK)
-
-@csrf_exempt
-@api_view(['GET'])
-def get_all_units(request):
-
-    units = TaskUnit.objects.all()
-    serializer = UnitsSearlizer(units, many=True)
-
-    return Response(serializer.data, status=HTTP_200_OK)
-
-
-@csrf_exempt
-@api_view(['GET'])
 def get_your_tasks_for_daterange(request, start_date, end_date):
 
     # @ FORMAT EXAMPLE: '09/19/18-13:55:26'
