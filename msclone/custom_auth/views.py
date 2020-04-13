@@ -13,7 +13,9 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.core import serializers
 from .serializers import UserSerializer
+from django.db.models import Q
 import json
+
 
 @csrf_exempt
 @api_view(["POST"])
@@ -31,7 +33,8 @@ def login(request):
     user_serializer = UserSerializer(user)
 
     token, _ = Token.objects.get_or_create(user=user)
-    return Response({'token': token.key, 'user': user_serializer.data }, status=HTTP_200_OK)
+    return Response({'token': token.key, 'user': user_serializer.data}, status=HTTP_200_OK)
+
 
 @csrf_exempt
 @api_view(['POST'])
@@ -40,29 +43,28 @@ def create_auth(request):
     _username = request.data.get("username")
     _email = request.data.get("email")
     _password = request.data.get("password")
-    if _username is None or _email is None or _password is None:
+    _first_name = request.data.get("first_name")
+    _last_name = request.data.get("last_name")
+    if _username is None or _email is None or _password is None or _first_name is None or _last_name is None:
         return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
 
-    if User.objects.filter(username=_username).exists():
+    if User.objects.filter(Q(username=_username) | Q(email=_email)).exists():
         return Response({'error': 'User already exists'}, status=HTTP_404_NOT_FOUND)
 
-    User.objects._create_user(_username, _email, _password)
+    User.objects._create_user(
+        _username, _email, _password, first_name=_first_name, last_name=_last_name)
     return Response({'message': f'Created user: {_username}'}, status=HTTP_201_CREATED)
 
-@csrf_exempt
-@api_view(["POST"])
-def get_user(request):
-    return Response({ 'user':  json.loads(serializers.serialize('json', [request.user]))[0]['fields']}, status=HTTP_200_OK)    
 
 @csrf_exempt
 @api_view(["POST"])
 def logout(request):
-        request.user.auth_token.delete()
-        return Response({'message': 'You have been successfully logged out'}, status=HTTP_200_OK)
+    request.user.auth_token.delete()
+    return Response({'message': 'You have been successfully logged out'}, status=HTTP_200_OK)
 
 
 @csrf_exempt
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def heartbeat(request):
-    return Response({ 'running':  True }, status=HTTP_200_OK) 
+    return Response({'running':  True}, status=HTTP_200_OK)
