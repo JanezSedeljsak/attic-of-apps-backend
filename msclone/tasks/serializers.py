@@ -65,7 +65,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
 class TaskCollaboratorSerializer(serializers.ModelSerializer):
     
     class Meta:
-        model = TaskCollaborators
+        model = TaskCollaborator
         fields = ['timestamp', 'user_id']
 
     def update(self, instance, validated_data):
@@ -79,7 +79,7 @@ class TaskCollaboratorSerializer(serializers.ModelSerializer):
 class TaskSerializer(TasksViewSerializer):
 
     subtasks = SubTaskSerializer(many=True)
-    collaborators = TaskCollaboratorSerializer(many=True, source='taskcollaboratorss')
+    collaborators = TaskCollaboratorSerializer(many=True, source='taskcollaborators')
     time_complexity_unit = serializers.SerializerMethodField('get_complexity_unit')
 
     class Meta:
@@ -96,7 +96,7 @@ class TaskSerializer(TasksViewSerializer):
 
     def update(self, instance, validated_data):
         subtasks = validated_data.pop('subtasks') or []
-        collaborators = validated_data.pop('taskcollaboratorss') or []
+        collaborators = validated_data.pop('taskcollaborators') or []
         
         for (key, value) in validated_data.items():
             setattr(instance, key, value)
@@ -116,10 +116,10 @@ class TaskSerializer(TasksViewSerializer):
                 subtask_serializer.save()
 
         updated_collaborator_ids = set([s['id'] for s in collaborators if 'id' in s])
-        collaborator_ids_to_delete = [s.id for s in instance.taskcollaboratorss if s.id not in updated_collaborator_ids]
+        collaborator_ids_to_delete = [s.id for s in instance.taskcollaborators if s.id not in updated_collaborator_ids]
 
         for collab_id in collaborator_ids_to_delete:
-            TaskCollaborators.objects.filter(id=collab_id).delete()
+            TaskCollaborator.objects.filter(id=collab_id).delete()
 
         return instance
 
@@ -142,5 +142,5 @@ class TaskStatusSerializer(serializers.ModelSerializer):
 class UnitsSearlizer(serializers.ModelSerializer):
 
     class Meta:
-        model = TaskUnits
+        model = TaskUnit
         fields = '__all__'

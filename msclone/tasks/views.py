@@ -96,7 +96,7 @@ def get_all_statuses(request):
 @api_view(['GET'])
 def get_all_units(request):
 
-    units = TaskUnits.objects.all()
+    units = TaskUnit.objects.all()
     serializer = UnitsSearlizer(units, many=True)
 
     return Response(serializer.data, status=HTTP_200_OK)
