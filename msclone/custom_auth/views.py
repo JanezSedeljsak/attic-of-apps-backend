@@ -73,25 +73,35 @@ def heartbeat(request):
 
 @csrf_exempt
 @api_view(["POST"])
-@permission_classes((AllowAny,))
 def update_auth(request):
-    _username = request.data.get("username")
+    _username = request.data.get("old_username")
     _password = request.data.get("old_password")
-    del request.data['old_password']
 
     if _username is None or _password is None:
-        return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Data sent was invalid'}, status=HTTP_200_OK)
+
+    del request.data['old_password']
+    del request.data['old_username']
+
+    if not request.data.get("username"):
+        request.data['username'] = _username
+
+    if not request.data.get("password"):
+        request.data['password'] = _password
 
     user = authenticate(username=_username, password=_password)
     if not user:
-        return Response({'error': 'Invalid Credentials'}, status=HTTP_404_NOT_FOUND)
+        return Response({'error': 'Invalid Credentials'}, status=HTTP_200_OK)
 
 
     user_serializer = UserSerializer(user, data=request.data)
     if user_serializer.is_valid():
         user_serializer.save()
     else:
-        return Response({'error': task_serializer.errors}, status=HTTP_400_BAD_REQUEST) 
+        return Response({'error': user_serializer.errors}, status=HTTP_200_OK) 
 
 
-    return Response({ 'message': 'User credentials were successfully updated'}, status=HTTP_200_OK)
+    return Response({ 
+        'message': 'User credentials were successfully updated', 
+        'user': user_serializer.data 
+    }, status=HTTP_200_OK)

@@ -19,6 +19,7 @@ urlpatterns = [
     path('auth/login', login),
     path('auth/logout', logout),
     path('auth/create', create_auth),
+    path('auth/update', update_auth),
 
     # task routes
     path('task/<int:task_id>', get_task),
