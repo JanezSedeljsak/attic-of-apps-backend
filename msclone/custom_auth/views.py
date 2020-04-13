@@ -68,3 +68,30 @@ def logout(request):
 @permission_classes((AllowAny,))
 def heartbeat(request):
     return Response({'running':  True}, status=HTTP_200_OK)
+
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def update_auth(request):
+    _username = request.data.get("username")
+    _password = request.data.get("old_password")
+    del request.data['old_password']
+
+    if _username is None or _password is None:
+        return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=_username, password=_password)
+    if not user:
+        return Response({'error': 'Invalid Credentials'}, status=HTTP_404_NOT_FOUND)
+
+
+    user_serializer = UserSerializer(user, data=request.data)
+    if user_serializer.is_valid():
+        user_serializer.save()
+    else:
+        return Response({'error': task_serializer.errors}, status=HTTP_400_BAD_REQUEST) 
+
+
+    return Response({ 'message': 'User credentials were successfully updated'}, status=HTTP_200_OK)
