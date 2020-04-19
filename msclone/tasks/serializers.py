@@ -41,7 +41,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubTask
-        fields = ['title', 'done_by', 'status_id']
+        fields = ['title', 'done_by', 'status_id', 'done_date']
 
 
     def get_status(self, stask):
@@ -66,7 +66,7 @@ class TaskCollaboratorSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = TaskCollaborator
-        fields = ['timestamp', 'user_id']
+        fields = ['permission_id', 'user_id']
 
     def update(self, instance, validated_data):
         for (key, value) in validated_data.items():
@@ -80,19 +80,11 @@ class TaskSerializer(TasksViewSerializer):
 
     subtasks = SubTaskSerializer(many=True)
     collaborators = TaskCollaboratorSerializer(many=True, source='taskcollaborators')
-    time_complexity_unit = serializers.SerializerMethodField('get_complexity_unit')
 
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'due_date', 'time_complexity', 
-            'author', 'time_complexity_unit', 'subtasks', 'collaborators']
-
-    def get_complexity_unit(self, task):
-
-        if hasattr(task, "time_complexity_unit"):
-            return task.time_complexity_unit.definition
-
-        return None
+            'user_id', 'subtasks', 'collaborators', 'timestamp']
 
     def update(self, instance, validated_data):
         subtasks = validated_data.pop('subtasks') or []
@@ -129,4 +121,4 @@ class SubTaskDetailSerializer(SubTaskSerializer):
 
     class Meta:
         model = SubTask
-        fields = ['title', 'done_by', 'status', 'worker']
+        fields = ['title', 'done_by', 'status', 'worker', 'done_date']

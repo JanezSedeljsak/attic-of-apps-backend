@@ -63,7 +63,11 @@ def create_task(request):
 @api_view(['GET'])
 def get_all_tasks(request):
 
-    tasks = Task.objects.all()
+    tasks = Task.objects.filter(user=request.user)
+
+    #subtaskCount = tasks.values('id').annotate(SubTask('id'))
+    #subtaskCompletedCount = tasks.values('id').annotate(SubTask('id'))
+
     serializer = TasksViewSerializer(tasks, many=True)
 
     return Response(serializer.data, status=HTTP_200_OK)
