@@ -33,7 +33,11 @@ def login(request):
     user_serializer = UserSerializer(user)
 
     token, _ = Token.objects.get_or_create(user=user)
-    return Response({'token': token.key, 'user': user_serializer.data}, status=HTTP_200_OK)
+
+    returned_user = user_serializer.data
+    returned_user['isGoogleAuth'] = False
+
+    return Response({'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
 
 
 @csrf_exempt
@@ -57,6 +61,36 @@ def create_auth(request):
 
 
 @csrf_exempt
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def google_auth(request):
+    _username = request.data.get("ZU")
+    _email = request.data.get("zu")
+    _password = request.data.get("gL")
+    _first_name = request.data.get("DW")
+    _last_name = request.data.get("DU")
+    if _username is None or _email is None or _password is None or _first_name is None or _last_name is None:
+        return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
+
+    if not User.objects.filter(username=_username).exists():
+        User.objects._create_user(
+            _username, _email, _password, first_name=_first_name, last_name=_last_name)
+
+
+    user = authenticate(username=_username, password=_password)
+    if not user:
+        return Response({'error': 'Invalid Credentials'}, status=HTTP_404_NOT_FOUND)
+
+    user_serializer = UserSerializer(user)
+
+    returned_user = user_serializer.data
+    returned_user['isGoogleAuth'] = True
+
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
+
+
+@csrf_exempt
 @api_view(["POST"])
 def logout(request):
     request.user.auth_token.delete()
@@ -68,7 +102,6 @@ def logout(request):
 @permission_classes((AllowAny,))
 def heartbeat(request):
     return Response({'running':  True}, status=HTTP_200_OK)
-
 
 
 @csrf_exempt
@@ -93,15 +126,12 @@ def update_auth(request):
     if not user:
         return Response({'error': 'Invalid Credentials'}, status=HTTP_200_OK)
 
-
     user_serializer = UserSerializer(user, data=request.data)
     if user_serializer.is_valid():
         user_serializer.save()
     else:
-        return Response({'error': user_serializer.errors}, status=HTTP_200_OK) 
-
-
-    return Response({ 
-        'message': 'User credentials were successfully updated', 
-        'user': user_serializer.data 
+        return Response({'error': user_serializer.errors}, status=HTTP_200_OK)
+    return Response({
+        'message': 'User credentials were successfully updated',
+        'user': user_serializer.data
     }, status=HTTP_200_OK)

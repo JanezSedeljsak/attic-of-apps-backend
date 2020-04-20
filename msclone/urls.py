@@ -17,6 +17,7 @@ urlpatterns = [
 
     # auth routes
     path('auth/login', login),
+    path('auth/google', google_auth),
     path('auth/logout', logout),
     path('auth/create', create_auth),
     path('auth/update', update_auth),
