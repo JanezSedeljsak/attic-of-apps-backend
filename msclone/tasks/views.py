@@ -28,12 +28,12 @@ def get_task(request, task_id):
     task = Task.objects.get(id=task_id)
 
     if request.method == 'GET':   
-        task_serializer = TaskSerializer(task)
+        task_serializer = TaskFormSerializer(task)
         result = task_serializer.data
 
 
     elif request.method == 'PUT':
-        task_serializer = TaskSerializer(task, data=request.data)
+        task_serializer = TaskFormSerializer(task, data=request.data)
         if task_serializer.is_valid():
             task_serializer.save()
             result['success'] = True
@@ -47,12 +47,24 @@ def get_task(request, task_id):
 
     return Response(result, status=HTTP_200_OK)
 
+@csrf_exempt
+@api_view(['GET', 'PUT', 'DELETE'])
+def get_task_detail(request, task_id):
+
+    if not Task.objects.filter(id=task_id).exists():
+        return Response({'error': 'The task you are searching for does not exist'}, status=HTTP_404_NOT_FOUND) 
+
+    task = Task.objects.get(id=task_id)
+    task_serializer = TaskDetailSerializer(task)
+
+    return Response(task_serializer.data, status=HTTP_200_OK)
+    
 
 @csrf_exempt
 @api_view(['POST'])
 def create_task(request):
     task_skeleton = Task(user=request.user)
-    task_serializer = TaskSerializer(task_skeleton, data=request.data)
+    task_serializer = TaskFormSerializer(task_skeleton, data=request.data)
     if task_serializer.is_valid():
         task_serializer.save()
         return Response(task_serializer.data, status=HTTP_201_CREATED)
@@ -65,26 +77,9 @@ def get_all_tasks(request):
 
     tasks = Task.objects.filter(user=request.user)
 
-    #subtaskCount = tasks.values('id').annotate(SubTask('id'))
-    #subtaskCompletedCount = tasks.values('id').annotate(SubTask('id'))
-
     serializer = TasksViewSerializer(tasks, many=True)
 
     return Response(serializer.data, status=HTTP_200_OK)
-
-
-@csrf_exempt
-@api_view(['GET'])
-def get_sub_task(request, task_id, subtask_id):
-
-    if not SubTask.objects.filter(Q(id=subtask_id) & Q(task_id=task_id)).exists():
-        return Response({'error': 'The sub task you are searching for does not exist'}, status=HTTP_404_NOT_FOUND) 
-        
-    subtask = SubTask.objects.get(id=subtask_id)
-    subtask_serializer = SubTaskSerializer(subtask)
-    
-
-    return Response(subtask_serializer.data, status=HTTP_200_OK)
 
 
 @csrf_exempt

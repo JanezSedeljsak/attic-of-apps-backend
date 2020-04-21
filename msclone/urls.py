@@ -24,8 +24,8 @@ urlpatterns = [
 
     # task routes
     path('task/<int:task_id>', get_task),
+    path('task/detail/<int:task_id>', get_task_detail),
     path('task/create', create_task),
-    path('task/<int:task_id>/<int:subtask_id>', get_sub_task),
     path('tasks', get_all_tasks),
     path('your-tasks/range/<slug:start_date>/<slug:end_date>', get_your_tasks_for_daterange),
 
