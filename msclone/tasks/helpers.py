@@ -7,6 +7,10 @@ class HelperMethods:
     def addProgressToTasks(tasks):
         newTasks = []
         for task in tasks:
+            if task['is_event']:
+                newTasks.append(task)
+                continue
+            
             prog = 0
             count = 0
             for subtask in task['subtasks']:

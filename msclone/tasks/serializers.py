@@ -16,7 +16,7 @@ class TasksViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'due_date', 'author', 'subtasks']
+        fields = ['id', 'title', 'description', 'due_date', 'author', 'subtasks', 'is_event']
 
     def get_user(self, task):
 
@@ -34,7 +34,7 @@ class TaskCalendarViewSerailizer(TasksViewSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'start', 'name', 'author', 'user_id', 'subtasks', 'time_complexity']
+        fields = ['id', 'start', 'name', 'author', 'user_id', 'subtasks', 'time_complexity', 'is_event']
 
 
 
@@ -87,7 +87,7 @@ class TaskFormSerializer(TasksViewSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'due_date', 'time_complexity',
-                  'user_id', 'subtasks', 'collaborators', 'timestamp']
+                  'user_id', 'subtasks', 'collaborators', 'timestamp', 'is_event']
 
     def update(self, instance, validated_data):
         subtasks = validated_data.pop('subtasks') or []
@@ -188,4 +188,4 @@ class TaskDetailSerializer(TasksViewSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'due_date', 'time_complexity',
-                  'author', 'subtasks', 'collaborators', 'timestamp']
+                  'author', 'subtasks', 'collaborators', 'timestamp', 'is_event']

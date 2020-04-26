@@ -20,6 +20,7 @@ class Task(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(null=True, blank=True)
     time_complexity = models.IntegerField(default=0)
+    is_event = models.BooleanField(default=False)
 
     @property
     def subtasks(self):
