@@ -9,8 +9,10 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.models import User
 from msclone.tasks.models import *
+from msclone.tasks.serializers import *
 from rest_framework.permissions import AllowAny
 from django.db.models import Q
+
 
 @csrf_exempt
 @api_view(['GET'])
@@ -24,8 +26,12 @@ def weekly_pdf(request):
     datetime_start_date = datetime.strptime(_start, '%d/%m/%y')
     datetime_end_date = datetime.strptime(_end, '%d/%m/%y')
 
+    colab_serializer = CollaboratorKeySerializer(
+        TaskCollaborator.objects.filter(user=request.user), many=True)
+    colabIds = [colab['task_id'] for colab in colab_serializer.data]
+
     tasks = Task.objects.filter(
-        Q(user=request.user) &
+        (Q(pk__in=colabIds) | Q(user=request.user)) &
         Q(due_date__lte=datetime_end_date, due_date__gt=datetime_start_date)
     )
 
@@ -38,6 +44,7 @@ def weekly_pdf(request):
     }
 
     return Render.render('brainjet_weekly_report.html', {})
+
 
 @csrf_exempt
 @api_view(['GET'])

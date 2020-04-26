@@ -3,6 +3,12 @@ from rest_framework import serializers
 from msclone.tasks.models import *
 from datetime import *
 
+class CollaboratorKeySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = TaskCollaborator
+        fields = ['task_id']
+
 class SubTaskProgressSerilaizer(serializers.ModelSerializer):
 
     class Meta:

@@ -77,7 +77,11 @@ def create_task(request):
 @api_view(['GET'])
 def get_all_tasks(request):
 
-    tasks = Task.objects.filter(user=request.user)
+    colab_serializer = CollaboratorKeySerializer(
+        TaskCollaborator.objects.filter(user=request.user), many=True)
+    colabIds = [colab['task_id'] for colab in colab_serializer.data]
+
+    tasks = Task.objects.filter(Q(pk__in=colabIds) | Q(user=request.user))
 
     serializer = TasksViewSerializer(tasks, many=True)
 
@@ -101,8 +105,12 @@ def get_your_tasks_for_daterange(request):
     datetime_start_date = datetime.strptime(_start, '%d/%m/%y')
     datetime_end_date = datetime.strptime(_end, '%d/%m/%y')
 
+    colab_serializer = CollaboratorKeySerializer(
+        TaskCollaborator.objects.filter(user=request.user), many=True)
+    colabIds = [colab['task_id'] for colab in colab_serializer.data]
+
     tasks = Task.objects.filter(
-        Q(user=request.user) &
+        (Q(pk__in=colabIds) | Q(user=request.user)) &
         Q(due_date__lte=datetime_end_date, due_date__gt=datetime_start_date)
     )
 
