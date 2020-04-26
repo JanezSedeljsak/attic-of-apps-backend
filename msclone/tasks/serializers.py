@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from msclone.tasks.models import *
-
+from datetime import *
 
 class TasksViewSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField('get_user')
@@ -17,6 +17,17 @@ class TasksViewSerializer(serializers.ModelSerializer):
                 return f'{task.user.first_name} {task.user.last_name}'
 
         return None
+
+class TaskCalendarViewSerailizer(TasksViewSerializer):
+    
+    name = serializers.CharField(source='title')
+    start = serializers.DateTimeField(source='due_date', format="%Y-%m-%d %H:%M")
+    #end = serializers.DateTimeField(source='due_date', format="%Y-%m-%d %H:%M")
+
+    class Meta:
+        model = Task
+        fields = ['id', 'start', 'name']
+
 
 
 class SubTaskUpdateSerializer(serializers.ModelSerializer):
