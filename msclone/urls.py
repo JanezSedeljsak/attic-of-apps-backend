@@ -5,7 +5,7 @@ from msclone.custom_auth.views import *
 from msclone.tasks.views import *
 from msclone.chat.views import *
 from msclone.pickers.views import *
-from msclone.pdfgenerator.views import Pdf
+from msclone.pdfgenerator.views import *
 
 urlpatterns = [
 
@@ -40,5 +40,6 @@ urlpatterns = [
     path('picker/permission', permission_picker),
 
     # generate pdf route
-    path('render/pdf/', Pdf.as_view())
+    path('render/pdf/weekly', weekly_pdf),
+    path('render/pdf/task', task_pdf)
 ]
