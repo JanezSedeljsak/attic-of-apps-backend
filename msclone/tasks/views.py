@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
+from .helpers import HelperMethods
 
 from django.contrib.auth.models import User
 from msclone.tasks.models import *
@@ -80,7 +81,9 @@ def get_all_tasks(request):
 
     serializer = TasksViewSerializer(tasks, many=True)
 
-    return Response(serializer.data, status=HTTP_200_OK)
+    tasksWithProgress = HelperMethods.addProgressToTasks(serializer.data)
+
+    return Response(tasksWithProgress, status=HTTP_200_OK)
 
 
 @csrf_exempt
@@ -102,6 +105,9 @@ def get_your_tasks_for_daterange(request):
         Q(user=request.user) &
         Q(due_date__lte=datetime_end_date, due_date__gt=datetime_start_date)
     )
+
     task_serializer = TaskCalendarViewSerailizer(tasks, many=True)
 
-    return Response(task_serializer.data, status=HTTP_200_OK)
+    tasksWithProgress = HelperMethods.addProgressToTasks(task_serializer.data)
+
+    return Response(tasksWithProgress, status=HTTP_200_OK)

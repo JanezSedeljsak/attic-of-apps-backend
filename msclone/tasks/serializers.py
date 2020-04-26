@@ -3,12 +3,20 @@ from rest_framework import serializers
 from msclone.tasks.models import *
 from datetime import *
 
+class SubTaskProgressSerilaizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SubTask
+        fields = ['id', 'status_id']
+
 class TasksViewSerializer(serializers.ModelSerializer):
+
     author = serializers.SerializerMethodField('get_user')
+    subtasks = SubTaskProgressSerilaizer(many=True)
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'due_date', 'author']
+        fields = ['id', 'title', 'description', 'due_date', 'author', 'subtasks']
 
     def get_user(self, task):
 
@@ -22,11 +30,11 @@ class TaskCalendarViewSerailizer(TasksViewSerializer):
     
     name = serializers.CharField(source='title')
     start = serializers.DateTimeField(source='due_date', format="%Y-%m-%d %H:%M")
-    #end = serializers.DateTimeField(source='due_date', format="%Y-%m-%d %H:%M")
+    subtasks = SubTaskProgressSerilaizer(many=True)
 
     class Meta:
         model = Task
-        fields = ['id', 'start', 'name']
+        fields = ['id', 'start', 'name', 'author', 'user_id', 'subtasks', 'time_complexity']
 
 
 
@@ -122,7 +130,7 @@ class SubTaskDetailSerializer(SubTaskFormSerializer):
 
     class Meta:
         model = SubTask
-        fields = ['title', 'status', 'worker', 'done_date']
+        fields = ['title', 'status', 'worker', 'done_date', 'status_id']
 
     def get_status(self, stask):
 

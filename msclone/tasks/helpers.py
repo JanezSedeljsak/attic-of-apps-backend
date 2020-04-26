@@ -4,8 +4,18 @@ from .serializers import *
 class HelperMethods:
 
     @staticmethod
-    def addProgressToTask(task_id):
-        task = Task.objects.get(pk=task_id)
-        task_serializer = TaskSerializer(task)
+    def addProgressToTasks(tasks):
+        newTasks = []
+        for task in tasks:
+            prog = 0
+            count = 0
+            for subtask in task['subtasks']:
+                count += 1
+                prog += 1 if subtask['status_id'] == 3 else 0
 
-        return task_serializer.data
+            newTaskData = task
+            newTaskData["progress"] = prog / count * 100 if prog > 0 else 0
+
+            newTasks.append(newTaskData)
+
+        return newTasks
