@@ -65,10 +65,9 @@ def get_task_detail(request, task_id):
 @csrf_exempt
 @api_view(['POST'])
 def create_task(request):
-    task_skeleton = Task(user=request.user)
-    task_serializer = TaskFormSerializer(task_skeleton, data=request.data)
+    task_serializer = TaskFormSerializer(data=request.data)
     if task_serializer.is_valid():
-        task_serializer.save()
+        task_serializer.save(user=request.user)
         return Response(task_serializer.data, status=HTTP_201_CREATED)
     return Response(task_serializer.errors, status=HTTP_400_BAD_REQUEST)
 
