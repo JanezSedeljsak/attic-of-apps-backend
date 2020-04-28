@@ -44,80 +44,95 @@ class TaskCalendarViewSerailizer(TasksViewSerializer):
         fields = ['id', 'start', 'name', 'author', 'user_id', 'subtasks', 'time_complexity', 'is_event']
 
 
-
-class SubTaskUpdateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = SubTask
-        fields = ['title', 'done_by', 'status_id']
-
-    def update(self, instance, validated_data):
-        for (key, value) in validated_data.items():
-            setattr(instance, key, value)
-
-        instance.save()
-
-        return instance
-
-
 class SubTaskFormSerializer(serializers.ModelSerializer):
 
-    # status = serializers.SerializerMethodField('get_status')
-    # worker = serializers.SerializerMethodField('get_user')
-
     class Meta:
         model = SubTask
-        fields = ['title', 'done_by', 'status_id', 'done_date']
+        fields = ('title', 'done_by', 'status', 'done_date', 'id')
 
 
-class CollaboratorFormSerializer(serializers.ModelSerializer):
+class TaskCollaboratorFormSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TaskCollaborator
-        fields = ['permission_id', 'user_id']
+        fields = ('user', 'permission', 'id')
 
-    def update(self, instance, validated_data):
-        for (key, value) in validated_data.items():
-            setattr(instance, key, value)
-
-        instance.save()
-
-        return instance
-
-
-class TaskFormSerializer(TasksViewSerializer):
+class TaskFormSerializer(serializers.ModelSerializer):
 
     subtasks = SubTaskFormSerializer(many=True)
-    collaborators = CollaboratorFormSerializer(
-        many=True, source='taskcollaborators')
+    taskcollaborators = TaskCollaboratorFormSerializer(many=True)
 
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'due_date', 'time_complexity',
-                  'user_id', 'subtasks', 'collaborators', 'timestamp', 'is_event']
+                  'user', 'subtasks', 'taskcollaborators', 'timestamp', 'is_event']
 
     def create(self, validated_data):
         subtasks = validated_data.pop('subtasks') or []
-        collaborators = validated_data.pop('taskcollaborators') or []
+        taskcollaborators = validated_data.pop('taskcollaborators') or []
 
         task = Task.objects.create(**validated_data)
 
         for subtask in subtasks:
             SubTask.objects.create(**subtask, task=task)
         
-        for collaborator in collaborators:
+        for collaborator in taskcollaborators:
             TaskCollaborator.objects.create(**collaborator, task=task)
 
         return task
 
     def update(self, instance, validated_data):
         subtasks = validated_data.pop('subtasks') or []
-        collaborators = validated_data.pop('taskcollaborators') or []
+        taskcollaborators = validated_data.pop('taskcollaborators') or []
 
         for (key, value) in validated_data.items():
             setattr(instance, key, value)
 
         instance.save()
+
+        keep_subtasks = []
+        for subtask in subtasks:
+            if 'id' in subtask:
+                if SubTask.objects.filter(id=subtask['id']).exists():
+
+                    subT = SubTask.objects.get(id=subtask['id'])
+                    for (key, value) in subtask.items():
+                        setattr(subT, key, value)
+
+                    subT.save()
+                    keep_subtasks.append(subT.id)
+                else:
+                    continue
+
+            else:
+                subT = SubTask.objects.create(**subtask, task=instance)
+                keep_subtasks.append(subT.id)
+
+        for subtask in instance.subtasks:
+            if subtask.id not in keep_subtasks:
+                subtask.delete()
+
+        keep_collaborators = []
+        for collaborator in taskcollaborators:
+            if 'id' in subtask:
+                if TaskCollaborator.objects.filter(id=collaborator['id']).exists():
+
+                    tColab = TaskCollaborator.objects.get(id=collaborator['id'])
+                    for (key, value) in collaborator.items():
+                        setattr(tColab, key, value)
+
+                    tColab.save()
+                    keep_collaborators.append(subT.id)
+                else:
+                    continue
+
+            else:
+                tColab = TaskCollaborator.objects.create(**collaborator, task=instance)
+                keep_collaborators.append(tColab.id)
+
+        for collaborator in instance.taskcollaborators:
+            if collaborator.id not in keep_collaborators:
+                collaborator.delete()
 
         return instance
 

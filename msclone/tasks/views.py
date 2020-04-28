@@ -37,7 +37,8 @@ def get_task(request, task_id):
     elif request.method == 'PUT':
         task_serializer = TaskFormSerializer(task, data=request.data)
         if task_serializer.is_valid():
-            task_serializer.save()
+            task_serializer.save(user=request.user)
+            result['task_data'] = task_serializer.data
             result['success'] = True
         else:
             return Response({'error': task_serializer.errors}, status=HTTP_400_BAD_REQUEST)
@@ -65,7 +66,13 @@ def get_task_detail(request, task_id):
 @csrf_exempt
 @api_view(['POST'])
 def create_task(request):
-    task_serializer = TaskFormSerializer(data=request.data)
+    task = request.data
+    
+    if task is None:
+        return Response({'error': 'Invalid data sent'}, status=HTTP_400_BAD_REQUEST)
+
+
+    task_serializer = TaskFormSerializer(data=task)
     if task_serializer.is_valid():
         task_serializer.save(user=request.user)
         return Response(task_serializer.data, status=HTTP_201_CREATED)
