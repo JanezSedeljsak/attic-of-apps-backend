@@ -40,9 +40,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     # Local Apps (Your project's apps)
-    'msclone.custom_auth',
-    'msclone.tasks',
-    'msclone.chat',
+    'core.custom_auth',
+    'core.tasks',
+    'core.chat',
 
     #cors
     'corsheaders',
@@ -71,7 +71,7 @@ MIDDLEWARE_CLASSES = (
     'whitenoise.middleware.WhiteNoiseMiddleware'
 )
 
-ROOT_URLCONF = 'msclone.urls'
+ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
@@ -89,7 +89,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'msclone.wsgi.application'
+WSGI_APPLICATION = 'core.wsgi.application'
 
 
 # Database

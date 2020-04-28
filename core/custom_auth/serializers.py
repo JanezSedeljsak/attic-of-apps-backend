@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from .models import EmailConf
 
 User = get_user_model()
 
@@ -21,3 +22,9 @@ class UserSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
         instance.save()
         return instance
+
+class EmailConfSerailizer(serializers.ModelSerializer):
+
+    class Meta(object):
+        model = EmailConf
+        fields = ('user', 'fallback', 'uuid', 'type')

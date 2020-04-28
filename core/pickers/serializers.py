@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from msclone.tasks.models import *
+from core.tasks.models import *
 
 class GlobalMetaForPickers:
     fields = ('id', 'display_as', 'list_display')

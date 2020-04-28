@@ -5,9 +5,9 @@ from rest_framework.decorators import api_view, permission_classes
 from .helpers import HelperMethods
 
 from django.contrib.auth.models import User
-from msclone.tasks.models import *
+from core.tasks.models import *
 from rest_framework.permissions import AllowAny
-from msclone.tasks.serializers import *
+from core.tasks.serializers import *
 from django.core import serializers
 from django.db.models import Q
 from datetime import *

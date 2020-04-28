@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from msclone.tasks.models import *
+from core.tasks.models import *
 from datetime import *
 from rest_framework.fields import CurrentUserDefault
 

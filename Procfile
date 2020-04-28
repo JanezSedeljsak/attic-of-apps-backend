@@ -1,1 +1,1 @@
-web: gunicorn msclone.wsgi --pythonpath=msclone --log-file -
+web: gunicorn core.wsgi --pythonpath=core --log-file -

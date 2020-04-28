@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.conf.urls import url, include
 from django.urls import path
-from msclone.custom_auth.views import *
-from msclone.tasks.views import *
-from msclone.chat.views import *
-from msclone.pickers.views import *
-from msclone.pdfgenerator.views import *
+from core.custom_auth.views import *
+from core.tasks.views import *
+from core.chat.views import *
+from core.pickers.views import *
+from core.pdfgenerator.views import *
 
 urlpatterns = [
 
@@ -21,6 +21,9 @@ urlpatterns = [
     path('auth/logout', logout),
     path('auth/create', create_auth),
     path('auth/update', update_auth),
+    path('auth/econfirm', email_confirm),
+    path('auth/send-reset', send_reset),
+    path('auth/pass-reset', reset_password),
 
     # task routes
     path('task/<int:task_id>', get_task),

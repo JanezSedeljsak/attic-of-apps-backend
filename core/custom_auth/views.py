@@ -13,8 +13,11 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.core import serializers
 from .serializers import UserSerializer
+from .models import *
 from django.db.models import Q
 import json
+import uuid
+from .helpers import SendEmail
 
 
 @csrf_exempt
@@ -30,6 +33,9 @@ def login(request):
     if not user:
         return Response({'error': 'Invalid Credentials'}, status=HTTP_404_NOT_FOUND)
 
+    if EmailConf.objects.filter(user=user).exists():
+        return Response({'ok': False, 'error': 'You must confirm you email'}, status=HTTP_400_BAD_REQUEST)
+
     user_serializer = UserSerializer(user)
 
     token, _ = Token.objects.get_or_create(user=user)
@@ -37,7 +43,7 @@ def login(request):
     returned_user = user_serializer.data
     returned_user['isGoogleAuth'] = False
 
-    return Response({'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
+    return Response({'ok': True, 'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
 
 
 @csrf_exempt
@@ -49,15 +55,77 @@ def create_auth(request):
     _password = request.data.get("password")
     _first_name = request.data.get("first_name")
     _last_name = request.data.get("last_name")
-    if _username is None or _email is None or _password is None or _first_name is None or _last_name is None:
+    _request_uri = request.data.get("uri")
+    if _request_uri is None or _username is None or _email is None or _password is None or _first_name is None or _last_name is None:
         return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(Q(username=_username) | Q(email=_email)).exists():
         return Response({'error': 'User already exists'}, status=HTTP_404_NOT_FOUND)
 
-    User.objects._create_user(
+    user = User.objects._create_user(
         _username, _email, _password, first_name=_first_name, last_name=_last_name)
-    return Response({'message': f'Created user: {_username}'}, status=HTTP_201_CREATED)
+
+    confirmUUID = str(uuid.uuid4())
+
+    emailData = {
+        "uuid": confirmUUID,
+        "user": user,
+        "fallback": _request_uri
+    }
+
+    if not SendEmail.confirm_acc(emailData):
+        return Response({'error': 'Error occured while sending the email'}, status=HTTP_400_BAD_REQUEST)
+
+    EmailConf.objects.create(**emailData)
+
+    return Response({'message': f'An email has been sent to {_email} to confirm your credentials!'}, status=HTTP_201_CREATED)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def email_confirm(request):
+
+    _uuid = request.data.get('uuid')
+    if _uuid is None:
+        return Response({'ok': False, 'error': 'Data sent was invalid!'}, status=HTTP_200_OK)
+
+    if EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='confirm')).exists():
+
+        EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='confirm')).delete()
+        return Response({'ok': True, 'message': 'Account was successfully verified!'}, status=HTTP_200_OK)
+
+    return Response({'ok': False, 'error': 'Invalid email confirmination code!'}, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def reset_password(request):
+
+    _uuid = request.data.get('uuid')
+    if _uuid is None:
+        return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
+
+    if EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).exists():
+
+        EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).delete()
+        return Response({'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+def send_reset(request):
+
+    _email = request.data.get('uuid')
+    if _uuid is None:
+        return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
+
+    if EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).exists():
+
+        EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).delete()
+        return Response({'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
 
 
 @csrf_exempt
@@ -72,10 +140,12 @@ def google_auth(request):
     if _username is None or _email is None or _password is None or _first_name is None or _last_name is None:
         return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
 
+    if User.objects.filter(email=_email).exclude(username=_username).exists():
+        return Response({'error': 'User with email is already registered'}, status=HTTP_404_NOT_FOUND)
+
     if not User.objects.filter(username=_username).exists():
         User.objects._create_user(
             _username, _email, _password, first_name=_first_name, last_name=_last_name)
-
 
     user = authenticate(username=_username, password=_password)
     if not user:

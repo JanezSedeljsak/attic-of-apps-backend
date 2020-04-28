@@ -8,8 +8,8 @@ from rest_framework.status import (
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.models import User
-from msclone.tasks.models import *
-from msclone.tasks.serializers import *
+from core.tasks.models import *
+from core.tasks.serializers import *
 from rest_framework.permissions import AllowAny
 from django.db.models import Q
 

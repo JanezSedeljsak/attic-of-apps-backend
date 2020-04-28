@@ -1,4 +1,4 @@
-from msclone.tasks.models import Task
+from core.tasks.models import Task
 from django.contrib.auth.models import User
 from django.db import models
 
