@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.core import serializers
-from .serializers import UserSerializer
+from .serializers import UserSerializer, EmailConfSerailizer
 from .models import *
 from django.db.models import Q
 import json
@@ -104,13 +104,32 @@ def email_confirm(request):
 def reset_password(request):
 
     _uuid = request.data.get('uuid')
-    if _uuid is None:
+    _password = request.data.get('password')
+
+    if _uuid is None or _password is None:
         return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
 
-    if EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).exists():
+    if not EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).exists():
+        return Response({'ok': False, 'error': 'Invalid confirmination code!'}, status=HTTP_400_BAD_REQUEST)
+    
+    resetCredentails = EmailConf.objects.get(Q(uuid=_uuid) & Q(type='reset'))
 
-        EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).delete()
-        return Response({'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
+    reset_serilaizer = EmailConfSerailizer(resetCredentails)
+    
+    user = User.objects.get(pk=reset_serilaizer.data['user'])
+
+    if user is None:
+        return Response({'error': 'User not found'}, status=HTTP_404_NOT_FOUND)
+
+    user.set_password(_password)
+    user.save()
+
+    # delete reset token
+    resetCredentails.delete()
+
+    return Response({'ok': True, 'message': 'The password was successfully updated!'}, status=HTTP_200_OK)
+
+    
 
 
 @csrf_exempt
@@ -200,7 +219,7 @@ def update_auth(request):
     _password = request.data.get("old_password")
 
     if _username is None or _password is None:
-        return Response({'error': 'Data sent was invalid'}, status=HTTP_200_OK)
+        return Response({'error': 'Data sent was invalid'}, status=HTTP_404_NOT_FOUND)
 
     del request.data['old_password']
     del request.data['old_username']
@@ -213,13 +232,13 @@ def update_auth(request):
 
     user = authenticate(username=_username, password=_password)
     if not user:
-        return Response({'error': 'Invalid Credentials'}, status=HTTP_200_OK)
+        return Response({'error': 'Invalid Credentials'}, status=HTTP_400_BAD_REQUEST)
 
     user_serializer = UserSerializer(user, data=request.data)
     if user_serializer.is_valid():
         user_serializer.save()
     else:
-        return Response({'error': user_serializer.errors}, status=HTTP_200_OK)
+        return Response({'error': user_serializer.errors}, status=HTTP_400_BAD_REQUEST)
     return Response({
         'message': 'User credentials were successfully updated',
         'user': user_serializer.data

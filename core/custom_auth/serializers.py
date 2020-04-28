@@ -27,4 +27,4 @@ class EmailConfSerailizer(serializers.ModelSerializer):
 
     class Meta(object):
         model = EmailConf
-        fields = ('user', 'fallback', 'uuid', 'type')
+        fields = ('user', 'uuid')
