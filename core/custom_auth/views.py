@@ -118,14 +118,33 @@ def reset_password(request):
 @permission_classes((AllowAny,))
 def send_reset(request):
 
-    _email = request.data.get('uuid')
-    if _uuid is None:
+    _username = request.data.get('username')
+    _request_uri = request.data.get('uri')
+
+    if _username is None or _request_uri is None:
         return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
 
-    if EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).exists():
 
-        EmailConf.objects.filter(Q(uuid=_uuid) & Q(type='reset')).delete()
-        return Response({'token': token.key, 'user': returned_user}, status=HTTP_200_OK)
+    if not User.objects.filter(username=_username).exists():
+        return Response({'error': 'User does not exist'}, status=HTTP_400_BAD_REQUEST)
+
+    user = User.objects.get(username=_username)
+
+    resetUUID = str(uuid.uuid4())
+
+    emailData = {
+        "uuid": resetUUID,
+        "user": user,
+        "fallback": _request_uri,
+        "type": "reset"
+    }
+
+    if not SendEmail.reset_pass(emailData):
+        return Response({'error': 'Error occured while sending the email'}, status=HTTP_400_BAD_REQUEST)
+
+    EmailConf.objects.create(**emailData)
+
+    return Response({'message': 'A password reset link has been sent to your email!'}, status=HTTP_200_OK)
 
 
 @csrf_exempt
