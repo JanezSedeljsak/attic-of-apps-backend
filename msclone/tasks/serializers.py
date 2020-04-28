@@ -96,8 +96,8 @@ class TaskFormSerializer(serializers.ModelSerializer):
                 if SubTask.objects.filter(id=subtask['id']).exists():
 
                     subT = SubTask.objects.get(id=subtask['id'])
-                    for (key, value) in subtask.items():
-                        setattr(subT, key, value)
+                    for key in subtask:
+                        setattr(subT, key, subtask[key])
 
                     subT.save()
                     keep_subtasks.append(subT.id)
@@ -108,21 +108,19 @@ class TaskFormSerializer(serializers.ModelSerializer):
                 subT = SubTask.objects.create(**subtask, task=instance)
                 keep_subtasks.append(subT.id)
 
-        for subtask in instance.subtasks:
-            if subtask.id not in keep_subtasks:
-                subtask.delete()
+        SubTask.objects.exclude(pk__in=keep_subtasks).delete()
 
         keep_collaborators = []
         for collaborator in taskcollaborators:
-            if 'id' in subtask:
+            if 'id' in collaborator:
                 if TaskCollaborator.objects.filter(id=collaborator['id']).exists():
 
                     tColab = TaskCollaborator.objects.get(id=collaborator['id'])
-                    for (key, value) in collaborator.items():
-                        setattr(tColab, key, value)
+                    for key in collaborator:
+                        setattr(tColab, key, collaborator[key])
 
                     tColab.save()
-                    keep_collaborators.append(subT.id)
+                    keep_collaborators.append(tColab.id)
                 else:
                     continue
 
@@ -130,9 +128,7 @@ class TaskFormSerializer(serializers.ModelSerializer):
                 tColab = TaskCollaborator.objects.create(**collaborator, task=instance)
                 keep_collaborators.append(tColab.id)
 
-        for collaborator in instance.taskcollaborators:
-            if collaborator.id not in keep_collaborators:
-                collaborator.delete()
+        TaskCollaborator.objects.exclude(pk__in=keep_collaborators).delete()
 
         return instance
 
