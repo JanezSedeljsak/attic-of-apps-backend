@@ -7,7 +7,14 @@ from core.chat.views import *
 from core.pickers.views import *
 from core.pdfgenerator.views import *
 
+admin_title = "BrainJet Administration"
+
+admin.site.site_header = admin_title
+admin.site.site_title = admin_title
+admin.site.index_title = admin_title
+
 urlpatterns = [
+    
 
     # static admin view
     path('admin/', admin.site.urls),
@@ -33,9 +40,9 @@ urlpatterns = [
     path('tasks/range', get_your_tasks_for_daterange),
 
     # chat routes
-    path('chat/send_message', send_message),
-    path('message/<int:message_id>', update_message),
-    path('messages/<int:chat_id>', get_all_messages),
+    path('chat/<int:task_id>', get_or_create_chat),
+    path('chat/<int:task_id>/new', get_new_messages),
+    path('chat/<int:task_id>/send', send_message),
 
     # picker routes
     path('picker/user', collaborator_picker),

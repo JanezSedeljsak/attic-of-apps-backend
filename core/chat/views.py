@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.models import User
 from .models import Message, Chat
 from rest_framework.permissions import AllowAny
-from .serializers import MessageSerializer, ChatSerializer
+from .serializers import MessageSerializer, ChatSerializer, MessageCreateSerializer
 from django.core import serializers
 from django.db.models import Q
 from rest_framework.status import (
@@ -19,14 +19,77 @@ from rest_framework.status import (
 
 @csrf_exempt
 @api_view(['POST'])
-def send_message(request, chat_id):
-    message_skeleton = Message(sender=request.user)
-    message_serializer = MessageSerializer(message_skeleton, data=request.data)
-    if message_serializer.is_valid():
-        message_serializer.save()
-        return Response(message_serializer.data, status=HTTP_201_CREATED)
-    return Response(message_serializer.errors, status=HTTP_400_BAD_REQUEST)
+def send_message(request, task_id):
 
+    if request.data.get('message') is None:
+        return Response({'error': "You can't send empty message"}, status=HTTP_400_BAD_REQUEST) 
+
+    if not Chat.objects.filter(task=task_id).exists():
+        return Response({'error': "The chat doesn't exist"}, status=HTTP_404_NOT_FOUND) 
+
+    chat = Chat.objects.get(task=task_id)
+
+    data = { "sender": request.user.id, "chat": chat.id }
+    data.update(request.data)
+
+
+    message_serializer = MessageCreateSerializer(data=data)
+    if not message_serializer.is_valid():
+        return Response({'error': message_serializer.errors}, status=HTTP_400_BAD_REQUEST) 
+
+    message_serializer.save()
+    return Response({'ok': True }, status=HTTP_200_OK) 
+
+@csrf_exempt
+@api_view(['GET'])
+def get_or_create_chat(request, task_id):
+
+    chat = None
+
+    if not Chat.objects.filter(task=task_id).exists():
+        chat = Chat.objects.create(task_id=task_id)
+    else:
+        chat = Chat.objects.get(task=task_id)
+
+    messeges = Message.objects.filter(chat=chat.id).order_by('-timestamp')
+
+    messege_serializer = MessageSerializer(messeges, many=True)
+
+    return Response(messege_serializer.data, status=HTTP_200_OK)
+
+@csrf_exempt
+@api_view(['POST'])
+def get_new_messages(request, task_id):
+
+    if not request.data.get('count'):
+        if not request.data.get('isZero'):
+            return Response({'error': "Invalid request"}, status=HTTP_400_BAD_REQUEST)
+
+    if not Chat.objects.filter(task=task_id).exists():
+        return Response({'error': "The chat doesn't exist"}, status=HTTP_404_NOT_FOUND) 
+
+    chat = Chat.objects.get(task=task_id)
+
+    count = request.data['count']
+    current_message_count = Message.objects.filter(chat=chat.id).count()
+
+    new_amount = (current_message_count - count)
+
+    if new_amount == 0:
+        # no new messages
+        return Response([], status=HTTP_200_OK)
+        
+    new_messages = Message.objects.filter(chat=chat.id).order_by('-timestamp')[:new_amount]
+
+    message_serializer = MessageSerializer(new_messages, many=True)
+
+    return Response(message_serializer.data, status=HTTP_200_OK)
+
+
+
+
+
+# not in use for now !!!!!!
 
 @csrf_exempt
 @api_view(['PUT', 'DELETE'])
@@ -51,13 +114,3 @@ def update_message(request, message_id):
         result['success'] = bool(operation)
 
     return Response(result, status=HTTP_200_OK)
-
-
-@csrf_exempt
-@api_view(['GET'])
-def get_all_messages(request, task_id):
-
-    messages = Message.objects.filter(task_id=task_id)
-    serializer = MessageSerializer(messages, many=True)
-
-    return Response(serializer.data, status=HTTP_200_OK)

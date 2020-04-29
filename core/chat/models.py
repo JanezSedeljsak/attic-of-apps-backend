@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Chat(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, default="Task Chat")
     timestamp = models.DateTimeField(auto_now=True)
     task = models.OneToOneField(Task, on_delete=models.CASCADE)
 
@@ -14,6 +14,12 @@ class Chat(models.Model):
 
     class Meta:
         ordering = ('timestamp',)
+
+    @classmethod
+    def create(cls, task):
+        book = cls(task=task)
+        # do something with the book
+        return book
 
 
 class Message(models.Model):
