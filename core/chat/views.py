@@ -75,7 +75,7 @@ def get_new_messages(request, task_id):
 
     new_amount = (current_message_count - count)
 
-    if new_amount == 0:
+    if new_amount <= 0:
         # no new messages
         return Response([], status=HTTP_200_OK)
         
