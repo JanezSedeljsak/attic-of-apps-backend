@@ -1,6 +1,5 @@
 from django.views.generic import View
 from .render import Render
-from django.utils import timezone
 from datetime import datetime
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST
@@ -12,6 +11,7 @@ from core.tasks.models import *
 from core.tasks.serializers import *
 from rest_framework.permissions import AllowAny
 from django.db.models import Q
+from django.utils import timezone
 
 
 @csrf_exempt
