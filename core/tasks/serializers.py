@@ -108,7 +108,7 @@ class TaskFormSerializer(serializers.ModelSerializer):
                 subT = SubTask.objects.create(**subtask, task=instance)
                 keep_subtasks.append(subT.id)
 
-        SubTask.objects.exclude(pk__in=keep_subtasks).delete()
+        SubTask.objects.filter(task=instance).exclude(pk__in=keep_subtasks).delete()
 
         keep_collaborators = []
         for collaborator in taskcollaborators:
@@ -128,7 +128,7 @@ class TaskFormSerializer(serializers.ModelSerializer):
                 tColab = TaskCollaborator.objects.create(**collaborator, task=instance)
                 keep_collaborators.append(tColab.id)
 
-        TaskCollaborator.objects.exclude(pk__in=keep_collaborators).delete()
+        TaskCollaborator.objects.filter(task=instance).exclude(pk__in=keep_collaborators).delete()
 
         return instance
 
