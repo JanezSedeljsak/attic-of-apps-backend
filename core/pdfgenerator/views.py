@@ -12,6 +12,8 @@ from core.tasks.serializers import *
 from rest_framework.permissions import AllowAny
 from django.db.models import Q
 from django.utils import timezone
+from core.tasks.helpers import HelperMethods
+import json
 
 
 @csrf_exempt
@@ -30,20 +32,18 @@ def weekly_pdf(request):
         TaskCollaborator.objects.filter(user=request.user), many=True)
     colabIds = [colab['task_id'] for colab in colab_serializer.data]
 
-    tasks = Task.objects.filter(
-        (Q(pk__in=colabIds) | Q(user=request.user)) &
-        Q(due_date__lte=datetime_end_date, due_date__gt=datetime_start_date)
-    )
+    tasks = Task.objects.filter((Q(pk__in=colabIds) | Q(user=request.user)) & Q(due_date__lte=datetime_end_date, due_date__gt=datetime_start_date))
 
-    today = timezone.now()
+    serializer = TasksViewSerializer(tasks, many=True)
+
+    tasksWithProgress = HelperMethods.addProgressToTasks(serializer.data, fillEmpty=True)
+
     params = {
-        'today': today,
-        'tasks': tasks,
-        'user': (request.user.first_name + request.user.last_name) if request.user else '/',
-        'smthn': 'kekec joža'
+        'today': timezone.now(),
+        'tasks': tasksWithProgress
     }
 
-    return Render.render('brainjet_weekly_report.html', {})
+    return Render.render('brainjet_weekly_report.html', params)
 
 
 @csrf_exempt
@@ -55,13 +55,12 @@ def task_pdf(request):
     if _task_id is None:
         return Response({'error': 'Data sent was invalid'}, status=HTTP_400_BAD_REQUEST)
 
-    tasks = Task.objects.all()
-    today = timezone.now()
+    task = Task.objects.get(pk=_task_id)
+    task_serializer = TaskDetailSerializer(task)
+ 
     params = {
-        'today': today,
-        'tasks': tasks,
-        'user': (request.user.first_name + request.user.last_name) if request.user else '/',
-        'smthn': 'kekec joža'
+        'today': timezone.now(),
+        'task': json.dumps(task_serializer.data, indent=4)
     }
 
     return Render.render('brainjet_task_report.html', params)

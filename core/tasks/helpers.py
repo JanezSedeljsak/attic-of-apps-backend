@@ -4,11 +4,14 @@ from .serializers import *
 class HelperMethods:
 
     @staticmethod
-    def addProgressToTasks(tasks):
+    def addProgressToTasks(tasks, fillEmpty=False):
         newTasks = []
         for task in tasks:
             if task['is_event']:
-                newTasks.append(task)
+                newTaskData = task
+                if fillEmpty:
+                    newTaskData["progress"] = '/'
+                newTasks.append(newTaskData)
                 continue
             
             prog = 0

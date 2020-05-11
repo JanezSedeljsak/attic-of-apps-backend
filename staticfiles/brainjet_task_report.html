@@ -3,17 +3,15 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Task Report</title>
+    <title>Weekly Report</title>
     <style type="text/css">
         @page {
             size: A4;
             margin: 1cm;
         }
 
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-
-        * {
-            font-family: Arial, Helvetica, sans-serif, sans-serif !important;
+        body {
+            font-family: sans-serif !important;
         }
 
         .data-row {
@@ -36,34 +34,12 @@
 <body>
     <div class="container">
         <div class="card">
+            <img src="https://i.imgur.com/WnAAV4o.png" width="200" />
             <div class="card-header">
-                <h3>Tasks Report - {{ today | date:"d/m/Y" }}</h3>
+                <h3>Task Report - {{ today | date:"d/m/Y" }}</h3>
             </div>
 
-            <div class="list-group">
-                <p>Name: {{ smthn }}</p>
-            </div>
-
-            <table class="table">
-                <thead>
-                    <tr class="head-row">
-                        <th>Title</th>
-                        <th>Due Date</th>
-                        <th>User</th>
-                        <th>Progress</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in tasks %}
-                    <tr class="data-row">
-                        <td>{{ task.title }}</td>
-                        <td>{{ task.due_date }}</td>
-                        <td>{{ task.user }}</td>
-                        <td>{{ "40%" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <pre>{{ task }}</pre>
         </div>
     </div>
 </body>
