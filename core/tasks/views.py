@@ -34,10 +34,10 @@ def get_task(request, task_id):
         task_serializer = TaskFormSerializer(task)
         task_data = task_serializer.data
 
-        if task_data['user'] == request.user:
+        if task_data['user'] == request.user.id:
             result['permissions'] = 'admin'
 
-        else: 
+        else:
             if not TaskCollaborator.objects.filter(task=task_id).exists():
                 return Response({'error': "You don't have the rights to view this task!"}, status=HTTP_400_BAD_REQUEST)
             else:
@@ -50,7 +50,7 @@ def get_task(request, task_id):
     elif request.method == 'PUT':
         task_serializer = TaskFormSerializer(task, data=request.data)
         if task_serializer.is_valid():
-            task_serializer.save(user=request.user)
+            task_serializer.save()
             result['task_data'] = task_serializer.data
             result['success'] = True
         else:
