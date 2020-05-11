@@ -16,6 +16,21 @@ class SubTaskProgressSerilaizer(serializers.ModelSerializer):
         model = SubTask
         fields = ['id', 'status_id']
 
+class TaskEditPermissionsSerializer(serializers.ModelSerializer):
+
+    permissions = serializers.SerializerMethodField('get_permissions')
+
+    class Meta:
+        model = TaskCollaborator
+        fields = ['permissions']
+
+    def get_permissions(self, taskcolab):
+        if hasattr(taskcolab, "permission"):
+            if taskcolab.permission.title:
+                return (taskcolab.permission.title).lower()
+
+        return None
+
 class TasksViewSerializer(serializers.ModelSerializer):
 
     author = serializers.SerializerMethodField('get_user')
